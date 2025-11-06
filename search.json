@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "projeto_evasao",
+    "section": "",
+    "text": "html`\n  &lt;div class=\"metric-card\"&gt;\n    &lt;h3 class=\"metric-title\"&gt;Hello&lt;/h3&gt;\n    &lt;div class=\"metric-value\"&gt;How are you&lt;/div&gt;\n    &lt;div class=\"metric-subtitle\"&gt;&lt;/div&gt;\n  &lt;/div&gt;\n`"
+  }
+]
