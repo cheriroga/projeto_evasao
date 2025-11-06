@@ -1,0 +1,14 @@
+---
+format: html
+---
+
+```{ojs, teste}
+//| echo: false
+html`
+  <div class="metric-card">
+    <h3 class="metric-title">Hello</h3>
+    <div class="metric-value">How are you</div>
+    <div class="metric-subtitle"></div>
+  </div>
+`
+```
