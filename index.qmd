@@ -1,14 +1,461 @@
----
-format: html
----
-
-```{ojs, teste}
+```{ojs}
 //| echo: false
+//| output: false
+
+// Transpose the data to make it usable in ojs
+
+dados = FileAttachment("data/evasao.csv").csv({typed: true})
+
+dados.forEach(d => d.ANO_EVASAO = +d.ANO_EVASAO);
+anosUnicos = Array.from(new Set(dados.map(d => d.ANO_EVASAO))).sort((a,b) => b - a)
+anos = ["Todos", ...anosUnicos];
+
+areas = ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]
+cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
+```
+
+<html lang="br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Evasão</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="conteiner">
+<aside>
+<div class="top">
+<div class="logo">
+<img src="./images/logo.png">
+<h2>PROJ. <span class="warning">EVASAO</span> </h2>
+</div>
+<div class="close" id="close-btn">
+<span class="material-symbols-outlined">close</span>
+</div>
+</div>
+<div class="sidebar">
+<a href="#" class="active">
+<span class="material-symbols-outlined">grid_view</span>
+<h3>Dashboard</h3>
+</a>
+<a href="#">
+<span class="material-symbols-outlined">analytics</span>
+<h3>Análises</h3>
+</a>
+</div>
+</aside>
+<!----------------------END OF ASIDE--------------------->
+<main>
+<!---------------------- BOTÃO DROPDOWN COM TODOS OS FILTROS --------------------->
+<div class="header">
+<h2> Dashboard </h2>
+<div class="filters-dropdown">
+<button class="dropdown-btn">
+<span class="material-symbols-outlined">filter_list</span>
+Filtros
+<span class="material-symbols-outlined">arrow_drop_down</span>
+</button>
+<div class="dropdown-content">
+<div class="filter-group">
+<h4>Curso:</h4>
+```{ojs}
+//| expandable: false
+//| echo: false
+viewof cursosDropdown = Inputs.radio(cursos, {
+value: "Todos"
+})
+```
+</div>
+
+<div class="filter-group">
+<h4>Modalidade:</h4>
+```{ojs}
+//| expandable: false
+//| echo: false
+//| output: false
+areaFiltrados = {
+  if (cursosDropdown === "Todos") {
+    return ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]
+  } else {
+    return [
+      "Todos",
+      ...new Set(
+        dados
+          .filter(d => d.CURSO === cursosDropdown)
+          .map(d => d.MODALIDADE) // CORREÇÃO: era MODALIDE
+      )
+    ]
+  }
+}
+```
+
+```{ojs}
+viewof areaDropdown = Inputs.select(areaFiltrados)
+```
+</div>
+
+<div class="filter-group">
+<h4>Período:</h4>
+<div class="date-range">
+```{ojs}
+viewof anoInicial = Inputs.select(anosUnicos, {
+value: d3.min(anosUnicos),
+label: "Ano Inicial"
+})
+```
+```{ojs}
+viewof anoFinal = Inputs.select(anosUnicos, {
+value: d3.max(anosUnicos),
+label: "Ano Final"
+})
+```
+</div>
+</div>
+
+<div class="filter-group">
+<h4>Gênero:</h4>
+```{ojs}
+viewof sexoCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.SEXO))],
+{ unique: true }
+)
+```
+</div>
+
+<div class="filter-group">
+<h4>Cota:</h4>
+```{ojs}
+viewof cotaCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.COTISTA))],
+{ unique: true }
+)
+```
+</div>
+
+<div class="filter-group">
+<h4>Etnia:</h4>
+```{ojs}
+viewof etniaCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.ETNIA))],
+{ unique: true }
+)
+```
+
+```{ojs}
+//| echo: false
+//| output: false
+anoMinSel = Math.min(anoInicial, anoFinal);
+anoMaxSel = Math.max(anoInicial, anoFinal);
+anoDifSel = anoMaxSel - AnoMinSel;
+dados_filtrados = dados
+  // FILTRO 1: modalidade
+  .filter(d => (
+    areaDropdown === "Todos" ||
+    !areaDropdown ||
+    d.MODALIDADE === areaDropdown
+  ))
+
+  // FILTRO 2: curso
+  .filter(d => (
+    cursosDropdown === "Todos" ||
+    !cursosDropdown ||
+    d.CURSO === cursosDropdown
+  ))
+
+  // FILTRO 3: sexo
+  .filter(d => (
+    sexoCheckbox.length === 0 ||
+    sexoCheckbox.includes(d.SEXO)
+  ))
+
+  // FILTRO 4: etnia
+  .filter(d => (
+    etniaCheckbox.length === 0 ||
+    etniaCheckbox.includes(d.ETNIA)
+  ))
+  
+  // FILTRO 5: cota
+  .filter(d => (
+    cotaCheckbox.length === 0 ||
+    cotaCheckbox.includes(d.COTISTA)
+  ))
+  
+  // FILTRO 5: ano de evasão
+  .filter(d => (
+  d.ANO_EVASAO >= anoMinSel &&
+  d.ANO_EVASAO <= anoMaxSel
+  ))
+```
+</div>
+</div>
+</div>
+</div>
+<!-----------------FIM DOS FILTROS------------------->
+<!--------------START OF INSIGHTS-------->
+<div class="insights">
+<div class="sales">
+<div class="middle">
+<div class="left">
+<h3>Total de Evadidos</h3>
+```{ojs}
 html`
-  <div class="metric-card">
-    <h3 class="metric-title">Hello</h3>
-    <div class="metric-value">How are you</div>
-    <div class="metric-subtitle"></div>
-  </div>
+<h1>
+${d3.sum(dados_filtrados, d => d.QTDE)}
+</h1>
 `
 ```
+</div>
+</div>
+```{ojs}
+html`
+<small class="text-muted">
+${anoFinal == anoInicial ? `No ano de ${anoFinal}` : `Entre os anos de ${anoInicial} e ${anoFinal}.`}
+</small>
+`
+```
+</div>
+<!----------------END OF EVASAO ------------>
+
+<div class="expenses">
+<div class="middle">
+<div class="left">
+<h3>Total de Formados</h3>
+```{ojs}
+html`
+<h1>
+${d3.sum(dados_filtrados, d => d.QTDE_FORMADO)}
+</h1>
+`
+```
+</div>
+</div>
+```{ojs}
+html`
+<small class="text-muted">
+${anoFinal == anoInicial ? `No ano de ${anoFinal}` : `Entre os anos de ${anoInicial} e ${anoFinal}.`}
+</small>
+`
+```
+</div>
+
+<div class="income">
+<div class="middle">
+<div class="left">
+<h3>Taxa de Evasão</h3>
+```{ojs}
+totalEvadidos = d3.sum(dados_filtrados, d => d.QTDE)
+totalFormados = d3.sum(dados_filtrados, d => d.QTDE_FORMADO)
+totalGeral = totalEvadidos + totalFormados
+taxaEvasao = totalGeral > 0 ? (totalEvadidos / totalGeral * 100).toFixed(1) : 0
+
+html`
+<h1>${taxaEvasao}%</h1>
+`
+```
+</div>
+</div>
+```{ojs}
+html`
+<small class="text-muted">
+${totalEvadidos} evadidos de ${totalGeral} alunos
+</small>
+`
+```
+</div>
+
+<div class="income">
+<div class="middle">
+<div class="left">
+<h3>Taxa de Conclusão</h3>
+```{ojs}
+taxaFormados = totalGeral > 0 ? (totalFormados / totalGeral * 100).toFixed(1) : 0
+
+html`
+<h1>${taxaFormados}%</h1>
+`
+```
+</div>
+</div>
+```{ojs}
+html`
+<small class="text-muted">
+${totalFormados} evadidos de ${totalGeral} alunos
+</small>
+`
+```
+</div>
+
+</div>
+<!----------------------------FIM DOS CARDS----------------------------------->
+<!--------------------------COMEÇO DOS PLOTS---------------------------------->
+<div class="plot">
+<div class="tsplot">
+<h2>Evasão por Ano</h2>
+```{ojs}
+evasaoAno = Array.from(
+d3.rollup(
+dados_filtrados,
+v => d3.sum(v, d => d.QTDE),
+d => d.ANO_EVASAO
+),
+([ANO_EVASAO, total]) => ({ ANO_EVASAO, total })
+).sort((a, b) => d3.ascending(a.ANO_EVASAO, b.ANO_EVASAO))
+
+Plot.plot({
+width: 600,
+height: 300,
+x: {label: "Ano", grid: true},
+y: {label: "Total Evadidos", grid: true},
+marks: [
+Plot.line(evasaoAno, {x: "ANO_EVASAO", y: "total", strokeWidth: 2}),
+Plot.dot(evasaoAno, {x: "ANO_EVASAO", y: "total", r: 4}),
+Plot.tip(evasaoAno, Plot.pointerX({x: "ANO_EVASAO", y: "total",
+title: d => `Ano: ${d.ANO_EVASAO}\nTotal: ${d.total}`
+}))
+]
+})
+```
+</div>
+<div class="tsplot">
+<h2>Distribuição por Tipo de Evasão</h2>
+```{ojs}
+chart = {
+  const width = 550;
+  const height = 300;
+  const radius = Math.min(width, height) / 2 - 40;
+  
+  // Preparar dados
+  const dataEvasao = Array.from(
+    d3.rollup(
+      dados_filtrados,
+      v => d3.sum(v, d => d.QTDE),
+      d => d.FORMA_EVASAO
+    ),
+    ([tipo, total]) => ({ tipo, total })
+  ).filter(d => d.total > 0)
+   .sort((a, b) => d3.descending(a.total, b.total));
+
+  const color = d3.scaleOrdinal()
+      .domain(dataEvasao.map(d => d.tipo))
+      .range(d3.schemeSet2);
+
+  const svg = d3.create("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+  const g = svg.append("g")
+      .attr("transform", `translate(${radius + 50}, ${height / 2})`);
+
+  const pie = d3.pie()
+      .value(d => d.total)
+      .sort(null);
+
+  const arc = d3.arc()
+      .innerRadius(radius * 0.6)
+      .outerRadius(radius);
+
+  const arcs = pie(dataEvasao);
+
+  // Desenhar arcos
+  const paths = g.selectAll("path")
+      .data(arcs)
+    .join("path")
+      .attr("fill", d => color(d.data.tipo))
+      .attr("d", arc)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 2)
+      .style("opacity", 0.8)
+      .each(function(d) { this._current = d; });
+
+  // Legenda
+  const legend = svg.append("g")
+      .attr("transform", `translate(${radius * 2 + 100}, 20)`);
+
+  const legendItems = legend.selectAll(".legend-item")
+      .data(dataEvasao)
+    .join("g")
+      .attr("class", "legend-item")
+      .attr("transform", (d, i) => `translate(0, ${i * 25})`)
+      .style("cursor", "pointer")
+      .on("click", function(event, d) {
+        const isActive = d3.select(this).classed("active");
+        d3.select(this).classed("active", !isActive);
+        
+        const targetOpacity = isActive ? 0.8 : 0.2;
+        paths.filter(path => path.data.tipo === d.tipo)
+            .transition().duration(300)
+            .style("opacity", targetOpacity);
+      });
+
+  legendItems.append("rect")
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", d => color(d.tipo))
+      .attr("rx", 3);
+
+  legendItems.append("text")
+      .attr("x", 25)
+      .attr("y", 9)
+      .attr("dy", "0.35em")
+      .style("font-size", "12px")
+      .text(d => `${d.tipo} (${d.total})`);
+
+  // Tooltip
+  const tooltip = d3.select("body").append("div")
+      .style("position", "absolute")
+      .style("background", "rgba(0,0,0,0.8)")
+      .style("color", "white")
+      .style("padding", "8px")
+      .style("border-radius", "4px")
+      .style("font-size", "12px")
+      .style("pointer-events", "none")
+      .style("opacity", 0);
+
+  paths.on("mouseover", function(event, d) {
+        const percentage = ((d.data.total / d3.sum(dataEvasao, x => x.total)) * 100).toFixed(1);
+        tooltip.style("opacity", 1)
+            .html(`<strong>${d.data.tipo}</strong><br>${d.data.total} alunos (${percentage}%)`);
+        
+        d3.select(this).transition().duration(200)
+            .style("opacity", 1)
+            .attr("stroke-width", 3);
+      })
+      .on("mousemove", function(event) {
+        tooltip.style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px");
+      })
+      .on("mouseout", function(event, d) {
+        tooltip.style("opacity", 0);
+        d3.select(this).transition().duration(200)
+            .style("opacity", 0.8)
+            .attr("stroke-width", 2);
+      });
+
+  function updateChart(newData) {
+    const newPieData = pie(newData);
+    
+    paths.data(newPieData)
+        .transition().duration(750)
+        .attrTween("d", function(d) {
+          const i = d3.interpolate(this._current, d);
+          this._current = i(0);
+          return t => arc(i(t));
+        });
+  }
+
+  return Object.assign(svg.node(), { updateChart });
+}
+
+viewof chartEvasao = chart
+```
+
+</div>
+</div>
+<!---------------------------FIM DOS PLOTS----------------------------------->
+</main>
+</div>
+<!------------------------------SCRIPTS-------------------------------------->
+<script src="./js/filter.js"></script>
+</body>
+</html>

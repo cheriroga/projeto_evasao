@@ -1,16 +1,11 @@
 project:
   type: website
 
-website:
-  title: "projeto_evasao"
-
+execute:
+  echo: false
+    
 format:
   html:
-    theme:
-      - cosmo
-      - brand
+    theme: none
     css: styles.css
-    toc: true
-
-
-
+    anchor-sections: false
