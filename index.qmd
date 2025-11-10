@@ -24,6 +24,7 @@ cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
 </head>
 <body>
 <div class="conteiner">
+<!-------------------------SIDEBAR--------------------------------->
 <aside>
 <div class="top">
 <div class="logo">
@@ -45,7 +46,7 @@ cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
 </a>
 </div>
 </aside>
-<!----------------------END OF ASIDE--------------------->
+<!----------------------END OF SIDEBAR--------------------->
 <main>
 <!---------------------- BOTÃO DROPDOWN COM TODOS OS FILTROS --------------------->
 <div class="header">
@@ -194,7 +195,7 @@ dados_filtrados = dados
 <!-----------------FIM DOS FILTROS------------------->
 <!--------------START OF INSIGHTS-------->
 <div class="insights">
-<div class="sales">
+<div class="totalEvadidos">
 <div class="middle">
 <div class="left">
 <h3>Total de Evadidos</h3>
@@ -217,7 +218,7 @@ ${anoFinal == anoInicial ? `No ano de ${anoFinal}` : `Entre os anos de ${anoInic
 </div>
 <!----------------END OF EVASAO ------------>
 
-<div class="expenses">
+<div class="totalFormados">
 <div class="middle">
 <div class="left">
 <h3>Total de Formados</h3>
@@ -239,7 +240,7 @@ ${anoFinal == anoInicial ? `No ano de ${anoFinal}` : `Entre os anos de ${anoInic
 ```
 </div>
 
-<div class="income">
+<div class="taxaEvasao">
 <div class="middle">
 <div class="left">
 <h3>Taxa de Evasão</h3>
@@ -264,7 +265,7 @@ ${totalEvadidos} evadidos de ${totalGeral} alunos
 ```
 </div>
 
-<div class="income">
+<div class="taxaFormados">
 <div class="middle">
 <div class="left">
 <h3>Taxa de Conclusão</h3>
@@ -286,8 +287,31 @@ ${totalFormados} evadidos de ${totalGeral} alunos
 ```
 </div>
 
+<div class="relacao">
+<div class="middle">
+<div class="left">
+<h3>Relação Evadido/Formado</h3>
+```{ojs}
+relacaoEvadidosFormados = (totalEvadidos / totalFormados).toFixed(2)
+
+html`
+<h1>${relacaoEvadidosFormados}</h1>
+`
+```
 </div>
-<!----------------------------FIM DOS CARDS----------------------------------->
+</div>
+```{ojs}
+html`
+<small class="text-muted">
+A cada 1 aluno que se forma, aprox. ${Math.round(relacaoEvadidosFormados)} evadem
+</small>
+`
+```
+</div>
+
+
+</div>
+<!----------------------------FIM DOS INSIGTHS-------------------------------->
 <!--------------------------COMEÇO DOS PLOTS---------------------------------->
 <div class="plot">
 <div class="tsplot">
