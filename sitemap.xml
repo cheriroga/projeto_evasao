@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://cheriroga.github.io/projeto_evasao/about.html</loc>
-    <lastmod>2025-11-10T02:21:31.756Z</lastmod>
+    <loc>https://cheriroga.github.io/projeto_evasao/tabela.html</loc>
+    <lastmod>2025-11-11T17:53:42.923Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cheriroga.github.io/projeto_evasao/analises.html</loc>
+    <lastmod>2025-11-11T17:53:42.909Z</lastmod>
   </url>
   <url>
     <loc>https://cheriroga.github.io/projeto_evasao/index.html</loc>
-    <lastmod>2025-11-10T02:21:31.761Z</lastmod>
+    <lastmod>2025-11-11T17:53:42.914Z</lastmod>
+  </url>
+  <url>
+    <loc>https://cheriroga.github.io/projeto_evasao/sobre.html</loc>
+    <lastmod>2025-11-11T17:53:42.922Z</lastmod>
   </url>
 </urlset>
