@@ -36,13 +36,21 @@ cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
 </div>
 </div>
 <div class="sidebar">
-<a href="#" class="active">
+<a href="index.qmd" class="active">
 <span class="material-symbols-outlined">grid_view</span>
 <h3>Dashboard</h3>
 </a>
-<a href="#">
+<a href="analises.qmd">
 <span class="material-symbols-outlined">analytics</span>
 <h3>Análises</h3>
+</a>
+<a href="tabela.qmd">
+<span class="material-symbols-outlined">table</span>
+<h3>Tabela</h3>
+</a>
+<a href="sobre.qmd">
+<span class="material-symbols-outlined">info</span>
+<h3>Sobre</h3>
 </a>
 </div>
 </aside>
@@ -327,7 +335,7 @@ d => d.ANO_EVASAO
 ).sort((a, b) => d3.ascending(a.ANO_EVASAO, b.ANO_EVASAO))
 
 Plot.plot({
-width: 600,
+width: 700,
 height: 300,
 x: {label: "Ano", grid: true},
 y: {label: "Total Evadidos", grid: true},
@@ -345,9 +353,10 @@ title: d => `Ano: ${d.ANO_EVASAO}\nTotal: ${d.total}`
 <h2>Distribuição por Tipo de Evasão</h2>
 ```{ojs}
 chart = {
-  const width = 550;
+  const width = 700;
   const height = 300;
   const radius = Math.min(width, height) / 2 - 40;
+  const colorInterpolator = d3.interpolateGreys;
   
   // Preparar dados
   const dataEvasao = Array.from(
@@ -360,9 +369,11 @@ chart = {
   ).filter(d => d.total > 0)
    .sort((a, b) => d3.descending(a.total, b.total));
 
+  const domain = dataEvasao.map(d => d.tipo)
+  
   const color = d3.scaleOrdinal()
-      .domain(dataEvasao.map(d => d.tipo))
-      .range(d3.schemeSet2);
+      .domain(domain)
+      .range(d3.quantize(t => colorInterpolator(t * 0.75 + 0.1 ), domain.length).reverse()) 
 
   const svg = d3.create("svg")
       .attr("width", width)
@@ -380,7 +391,7 @@ chart = {
       .outerRadius(radius);
 
   const arcs = pie(dataEvasao);
-
+ 
   // Desenhar arcos
   const paths = g.selectAll("path")
       .data(arcs)
@@ -390,7 +401,27 @@ chart = {
       .attr("stroke", "#fff")
       .attr("stroke-width", 2)
       .style("opacity", 0.8)
-      .each(function(d) { this._current = d; });
+      .style("cursor", "pointer")
+      .each(function(d) { this._current = d; })
+      .on("click", function(event, selected) {
+      // Clicando na fatia: Destacar a fatia clicada e deixar as outras cinzas
+      svg.selectAll("path")
+        .transition().duration(200)
+        .attr("fill", d => d.data.tipo === selected.data.tipo ? color(d.data.tipo) : "#D3D3D3"); // "#D3D3D3" é o cinza
+
+      // Se a fatia já estiver selecionada, desmarque
+      const isSelected = d3.select(this).classed("selected");
+      if (isSelected) {
+        d3.select(this).classed("selected", false);
+        svg.selectAll("path")
+          .transition().duration(200)
+          .attr("fill", d => color(d.data.tipo));  // Voltar às cores originais
+      } else {
+        d3.select(this).classed("selected", true)
+          .transition().duration(200)
+          .attr("fill", color(selected.data.tipo));  // Destacar a fatia selecionada
+      }
+    });
 
   // Legenda
   const legend = svg.append("g")
@@ -473,13 +504,22 @@ chart = {
 
 viewof chartEvasao = chart
 ```
-
 </div>
 </div>
 <!---------------------------FIM DOS PLOTS----------------------------------->
 </main>
+<!----------------------------END OF MAIN------------------------------------>
+
+<div class="right">
+<div class="top">
+<button id="menu-btn">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
 </div>
 <!------------------------------SCRIPTS-------------------------------------->
 <script src="./js/filter.js"></script>
+<script src="./js/index.js"></script>
 </body>
 </html>

@@ -1,0 +1,220 @@
+```{ojs}
+//| echo: false
+//| output: false
+
+// Transpose the data to make it usable in ojs
+
+dados = FileAttachment("data/evasao.csv").csv({typed: true})
+
+dados.forEach(d => d.ANO_EVASAO = +d.ANO_EVASAO);
+anosUnicos = Array.from(new Set(dados.map(d => d.ANO_EVASAO))).sort((a,b) => b - a)
+anos = ["Todos", ...anosUnicos];
+
+areas = ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]
+cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
+```
+
+<html lang="br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Evasão</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="conteiner">
+<!-------------------------SIDEBAR--------------------------------->
+<aside>
+<div class="top">
+<div class="logo">
+<img src="./images/logo.png">
+<h2>PROJ. <span class="warning">EVASAO</span> </h2>
+</div>
+<div class="close">
+<span class="material-symbols-outlined">close</span>
+</div>
+</div>
+<div class="sidebar" id="close-btn">
+<a href="index.qmd">
+<span class="material-symbols-outlined">grid_view</span>
+<h3>Dashboard</h3>
+</a>
+<a href="analises.qmd">
+<span class="material-symbols-outlined">analytics</span>
+<h3>Análises</h3>
+</a>
+<a href="tabela.qmd" class="active">
+<span class="material-symbols-outlined">table</span>
+<h3>Tabela</h3>
+</a>
+<a href="sobre.qmd">
+<span class="material-symbols-outlined">info</span>
+<h3>Sobre</h3>
+</a>
+</div>
+</aside>
+<!----------------------END OF SIDEBAR--------------------->
+<main>
+<!---------------------- BOTÃO DROPDOWN COM TODOS OS FILTROS --------------------->
+<div class="header">
+<h2> Tabela </h2>
+<div class="filters-dropdown">
+<button class="dropdown-btn">
+<span class="material-symbols-outlined">filter_list</span>
+Filtros
+<span class="material-symbols-outlined">arrow_drop_down</span>
+</button>
+<div class="dropdown-content">
+<div class="filter-group">
+<h4>Curso:</h4>
+```{ojs}
+//| expandable: false
+//| echo: false
+viewof cursosDropdown = Inputs.radio(cursos, {
+value: "Todos"
+})
+```
+</div>
+
+<div class="filter-group">
+<h4>Modalidade:</h4>
+```{ojs}
+//| expandable: false
+//| echo: false
+//| output: false
+areaFiltrados = {
+  if (cursosDropdown === "Todos") {
+    return ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]
+  } else {
+    return [
+      "Todos",
+      ...new Set(
+        dados
+          .filter(d => d.CURSO === cursosDropdown)
+          .map(d => d.MODALIDADE) // CORREÇÃO: era MODALIDE
+      )
+    ]
+  }
+}
+```
+
+```{ojs}
+viewof areaDropdown = Inputs.select(areaFiltrados)
+```
+</div>
+
+<div class="filter-group">
+<h4>Período:</h4>
+<div class="date-range">
+```{ojs}
+viewof anoInicial = Inputs.select(anosUnicos, {
+value: d3.min(anosUnicos),
+label: "Ano Inicial"
+})
+```
+```{ojs}
+viewof anoFinal = Inputs.select(anosUnicos, {
+value: d3.max(anosUnicos),
+label: "Ano Final"
+})
+```
+</div>
+</div>
+
+<div class="filter-group">
+<h4>Gênero:</h4>
+```{ojs}
+viewof sexoCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.SEXO))],
+{ unique: true }
+)
+```
+</div>
+
+<div class="filter-group">
+<h4>Cota:</h4>
+```{ojs}
+viewof cotaCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.COTISTA))],
+{ unique: true }
+)
+```
+</div>
+
+<div class="filter-group">
+<h4>Etnia:</h4>
+```{ojs}
+viewof etniaCheckbox = Inputs.checkbox(
+[...new Set(dados.map(d => d.ETNIA))],
+{ unique: true }
+)
+```
+
+```{ojs}
+//| echo: false
+//| output: false
+anoMinSel = Math.min(anoInicial, anoFinal);
+anoMaxSel = Math.max(anoInicial, anoFinal);
+anoDifSel = anoMaxSel - AnoMinSel;
+dados_filtrados = dados
+  // FILTRO 1: modalidade
+  .filter(d => (
+    areaDropdown === "Todos" ||
+    !areaDropdown ||
+    d.MODALIDADE === areaDropdown
+  ))
+
+  // FILTRO 2: curso
+  .filter(d => (
+    cursosDropdown === "Todos" ||
+    !cursosDropdown ||
+    d.CURSO === cursosDropdown
+  ))
+
+  // FILTRO 3: sexo
+  .filter(d => (
+    sexoCheckbox.length === 0 ||
+    sexoCheckbox.includes(d.SEXO)
+  ))
+
+  // FILTRO 4: etnia
+  .filter(d => (
+    etniaCheckbox.length === 0 ||
+    etniaCheckbox.includes(d.ETNIA)
+  ))
+  
+  // FILTRO 5: cota
+  .filter(d => (
+    cotaCheckbox.length === 0 ||
+    cotaCheckbox.includes(d.COTISTA)
+  ))
+  
+  // FILTRO 5: ano de evasão
+  .filter(d => (
+  d.ANO_EVASAO >= anoMinSel &&
+  d.ANO_EVASAO <= anoMaxSel
+  ))
+```
+</div>
+</div>
+</div>
+</div>
+<!-----------------FIM DOS FILTROS------------------->
+<!----------------------TABELA----------------------->
+</main>
+<!----------------------------END OF MAIN------------------------------------>
+
+<div class="right">
+<div class="top">
+<button id="menu-btn">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</div>
+<!------------------------------SCRIPTS-------------------------------------->
+<script src="./js/filter.js"></script>
+<script src="./js/index.js"></script>
+</body>
+</html>

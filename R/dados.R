@@ -62,17 +62,40 @@ dados_etnia <- dados_etnia |>
       grepl("Educação", AREA_CONHECIMENTO, ignore.case = TRUE) ~ "Licenciatura",
       
       TRUE ~ "ERRADO!!!"
+    ),
+    SEXO_ = case_when(
+      SEXO == "M" ~ "Masculino",
+      SEXO == "F" ~ "Feminino",
+      
+      TRUE ~ "Não Informado"
+    ),
+    ETNIA_ = case_when(
+      ETNIA == "ET_BRANCA" ~ "Branca",
+      ETNIA == "ET_PRETA" ~ "Preta",
+      ETNIA == "ET_PARDA" ~ "Parda",
+      ETNIA == "ET_AMARELA" ~ "Amarela",
+      ETNIA == "ET_INDIGENA" ~ "Indígena",
+      
+      TRUE ~ "Não Declarada"
+      
+    ),
+    COTISTA_ = case_when(
+      COTISTA == "N" ~ "Não Cotista",
+      COTISTA == "S" ~ "Cotista",
+      
+      TRUE ~ "Não Informado"
     )
   )
+
+dados_etnia$SEXO <- dados_etnia$SEXO_
+dados_etnia$ETNIA <- dados_etnia$ETNIA_
+dados_etnia$COTISTA <- dados_etnia$COTISTA_
+
 dados_etnia <- dados_etnia |> 
   mutate(
     QTDE_FORMADO = if_else(FORMA_EVASAO_limpa == "Formado", QTDE, 0),
     QTDE = if_else(FORMA_EVASAO_limpa == "Formado", 0, QTDE)
   )
-
-dados_etnia$ETNIA <- gsub("^ET_", "", dados_etnia$ETNIA)
-
-dados_etnia$ETNIA <- gsub("_", " ", dados_etnia$ETNIA)
 
 dados <- dados_etnia
 

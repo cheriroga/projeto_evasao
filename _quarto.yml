@@ -9,3 +9,4 @@ format:
     theme: none
     css: styles.css
     anchor-sections: false
+    title-block-style: none
