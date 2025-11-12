@@ -62,7 +62,9 @@ cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
 <div class="filters-dropdown">
 <button class="dropdown-btn">
 <span class="material-symbols-outlined">filter_list</span>
+<h3>
 Filtros
+</h3>
 <span class="material-symbols-outlined">arrow_drop_down</span>
 </button>
 <div class="dropdown-content">
@@ -325,6 +327,7 @@ A cada 1 aluno que se forma, aprox. ${Math.round(relacaoEvadidosFormados)} evade
 <div class="tsplot">
 <h2>Evasão por Ano</h2>
 ```{ojs}
+// Substitua o bloco do gráfico de linha por:
 evasaoAno = Array.from(
 d3.rollup(
 dados_filtrados,
@@ -334,28 +337,31 @@ d => d.ANO_EVASAO
 ([ANO_EVASAO, total]) => ({ ANO_EVASAO, total })
 ).sort((a, b) => d3.ascending(a.ANO_EVASAO, b.ANO_EVASAO))
 
-Plot.plot({
-width: 700,
-height: 300,
-x: {label: "Ano", grid: true},
-y: {label: "Total Evadidos", grid: true},
-marks: [
-Plot.line(evasaoAno, {x: "ANO_EVASAO", y: "total", strokeWidth: 2}),
-Plot.dot(evasaoAno, {x: "ANO_EVASAO", y: "total", r: 4}),
-Plot.tip(evasaoAno, Plot.pointerX({x: "ANO_EVASAO", y: "total",
-title: d => `Ano: ${d.ANO_EVASAO}\nTotal: ${d.total}`
-}))
-]
-})
+html`
+<div class="plot-container">
+${Plot.plot({
+  style: "max-width: 100%; height: auto;",
+  x: {label: "Ano", grid: true},
+  y: {label: "Total Evadidos", grid: true},
+  marks: [
+    Plot.line(evasaoAno, {x: "ANO_EVASAO", y: "total", strokeWidth: 2}),
+    Plot.dot(evasaoAno, {x: "ANO_EVASAO", y: "total", r: 4}),
+    Plot.tip(evasaoAno, Plot.pointerX({x: "ANO_EVASAO", y: "total",
+    title: d => `Ano: ${d.ANO_EVASAO}\nTotal: ${d.total}`
+    }))
+  ]
+})}
+</div>
+`
 ```
 </div>
 <div class="tsplot">
 <h2>Distribuição por Tipo de Evasão</h2>
 ```{ojs}
 chart = {
-  const width = 700;
-  const height = 300;
-  const radius = Math.min(width, height) / 2 - 40;
+  const width = 550
+  const height = width * 0.5; // Mantém proporção
+  const radius = Math.min(width, height) / 2 - 10;
   const colorInterpolator = d3.interpolateGreys;
   
   // Preparar dados
@@ -380,7 +386,7 @@ chart = {
       .attr("height", height);
 
   const g = svg.append("g")
-      .attr("transform", `translate(${radius + 50}, ${height / 2})`);
+      .attr("transform", `translate(${radius + 50}, ${height / 1.3})`);
 
   const pie = d3.pie()
       .value(d => d.total)
@@ -422,10 +428,10 @@ chart = {
           .attr("fill", color(selected.data.tipo));  // Destacar a fatia selecionada
       }
     });
-
+    
   // Legenda
   const legend = svg.append("g")
-      .attr("transform", `translate(${radius * 2 + 100}, 20)`);
+      .attr("transform", `translate(${radius * 2 + 100}, 1)`);
 
   const legendItems = legend.selectAll(".legend-item")
       .data(dataEvasao)
@@ -455,6 +461,7 @@ chart = {
       .attr("dy", "0.35em")
       .style("font-size", "12px")
       .text(d => `${d.tipo} (${d.total})`);
+
 
   // Tooltip
   const tooltip = d3.select("body").append("div")
@@ -502,14 +509,18 @@ chart = {
   return Object.assign(svg.node(), { updateChart });
 }
 
-viewof chartEvasao = chart
+html`
+<div class="plot-container">
+${chart}
+</div>
+`
 ```
 </div>
 </div>
+
 <!---------------------------FIM DOS PLOTS----------------------------------->
 </main>
 <!----------------------------END OF MAIN------------------------------------>
-
 <div class="right">
 <div class="top">
 <button id="menu-btn">
@@ -518,6 +529,7 @@ viewof chartEvasao = chart
 </div>
 </div>
 </div>
+
 <!------------------------------SCRIPTS-------------------------------------->
 <script src="./js/filter.js"></script>
 <script src="./js/index.js"></script>
