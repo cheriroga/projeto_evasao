@@ -61,8 +61,7 @@ cursos = ["Todos", ...new Set(dados.map(d => d.CURSO))]
 <h2> Dashboard </h2>
 <div class="filters-dropdown">
 <button class="dropdown-btn">
-<span class="material-symbols-outlined">filter_list</span>
-<h3>
+<span class="material-symbols-outlined">filter_list</span> <h3>
 Filtros
 </h3>
 <span class="material-symbols-outlined">arrow_drop_down</span>
@@ -327,44 +326,81 @@ A cada 1 aluno que se forma, aprox. ${Math.round(relacaoEvadidosFormados)} evade
 <div class="tsplot">
 <h2>Evasão por Ano</h2>
 ```{ojs}
-// Substitua o bloco do gráfico de linha por:
-evasaoAno = Array.from(
-d3.rollup(
-dados_filtrados,
-v => d3.sum(v, d => d.QTDE),
-d => d.ANO_EVASAO
-),
-([ANO_EVASAO, total]) => ({ ANO_EVASAO, total })
-).sort((a, b) => d3.ascending(a.ANO_EVASAO, b.ANO_EVASAO))
+{
+  const evasaoAnos = Array.from(
+    d3.rollup(
+      dados_filtrados,
+      v => ({
+        formado: d3.sum(v, d => d.QTDE_FORMADO),
+        evadido: d3.sum(v, d => d.QTDE)
+      }),
+      d => d.ANO_EVASAO
+    ),
+    ([ANO_EVASAO, valores]) => ({ 
+      ANO_EVASAO, 
+      formado: valores.formado, 
+      evadido: valores.evadido 
+    })
+  ).sort((a, b) => d3.ascending(a.ANO_EVASAO, b.ANO_EVASAO));
 
-html`
-<div class="plot-container">
-${Plot.plot({
-  style: "max-width: 100%; height: auto;",
-  x: {label: "Ano", grid: true},
-  y: {label: "Total Evadidos", grid: true},
-  marks: [
-    Plot.line(evasaoAno, {x: "ANO_EVASAO", y: "total", strokeWidth: 2}),
-    Plot.dot(evasaoAno, {x: "ANO_EVASAO", y: "total", r: 4}),
-    Plot.tip(evasaoAno, Plot.pointerX({x: "ANO_EVASAO", y: "total",
-    title: d => `Ano: ${d.ANO_EVASAO}\nTotal: ${d.total}`
-    }))
-  ]
-})}
-</div>
-`
+  // Criar os traces corretamente
+  const traceEvadido = {
+    y: evasaoAnos.map(d => d.evadido),
+    x: evasaoAnos.map(d => d.ANO_EVASAO),
+    type: "scatter",
+    mode: "lines+markers",
+    name: 'Evadidos',
+    line: {color: 'black'}
+  };
+  
+  const traceFormado = {
+    y: evasaoAnos.map(d => d.formado),
+    x: evasaoAnos.map(d => d.ANO_EVASAO),
+    type: "scatter",
+    mode: "lines",
+    name: 'Formados',
+    line: {color: '#e15759'}
+  };
+  
+  // Array de traces, não de arrays de traces
+  //const data = [traceEvadido, traceFormado];
+  const data = [traceEvadido];
+
+  const layout = {
+    // title: 'Evasão vs Formação por Ano',
+    xaxis: { title: 'Ano' },
+    yaxis: { title: 'Quantidade' },
+    showlegend: false,
+      font: {
+	family: 'Poppins',
+			},
+      margin: {
+	b: 40,
+	r: 20,
+	l: 50,
+	t: 20,
+			}
+  };
+
+  const config = { 
+    responsive: true,
+    staticPlot: false,
+    displaylogo: false,
+  };
+
+  const div = DOM.element('div');
+    Plotly.newPlot(div, data, layout, config);
+  return div;
+}
 ```
 </div>
 <div class="tsplot">
-<h2>Distribuição por Tipo de Evasão</h2>
+<h2>Distribuição por tipo de Evasão</h2>
+
 ```{ojs}
-chart = {
-  const width = 550
-  const height = width * 0.5; // Mantém proporção
-  const radius = Math.min(width, height) / 2 - 10;
-  const colorInterpolator = d3.interpolateGreys;
-  
-  // Preparar dados
+Plotly = require("https://cdn.plot.ly/plotly-latest.min.js")
+
+{
   const dataEvasao = Array.from(
     d3.rollup(
       dados_filtrados,
@@ -372,148 +408,56 @@ chart = {
       d => d.FORMA_EVASAO
     ),
     ([tipo, total]) => ({ tipo, total })
-  ).filter(d => d.total > 0)
-   .sort((a, b) => d3.descending(a.total, b.total));
+  )
+  .filter(d => d.total > 0)
+  .sort((a, b) => d3.descending(a.total, b.total));
 
-  const domain = dataEvasao.map(d => d.tipo)
-  
-  const color = d3.scaleOrdinal()
-      .domain(domain)
-      .range(d3.quantize(t => colorInterpolator(t * 0.75 + 0.1 ), domain.length).reverse()) 
+  // Preparar dados para o Plotly
+  const evasaoAno = [{
+    values: dataEvasao.map(d => d.total),
+    labels: dataEvasao.map(d => d.tipo),
+    textinfo: 'none',
+    direction: 'clockwise',
+    hole: .6,
+    marker: {
+      colors: d3.schemeTableau10,
+      line: {
+	color: 'white',
+	width: 2,
+      },  
+    },
+    type: 'pie',
+    name: 'Formas de Evasão',
+  }];
 
-  const svg = d3.create("svg")
-      .attr("width", width)
-      .attr("height", height);
+  const layout = {
+      legend: {
+      y: 0.5,
+      x: 1.1,
+			},
+      font: {
+	family: 'Poppins',
+	size: 14,
+			},
+      margin: {
+	b: 20,
+	r: 20,
+	l: 20,
+	t: 50,
+			},
 
-  const g = svg.append("g")
-      .attr("transform", `translate(${radius + 50}, ${height / 1.3})`);
+  };
 
-  const pie = d3.pie()
-      .value(d => d.total)
-      .sort(null);
+  const config = { 
+    responsive: true,
+    staticPlot: false,
+    displaylogo: false,
+  };
 
-  const arc = d3.arc()
-      .innerRadius(radius * 0.6)
-      .outerRadius(radius);
-
-  const arcs = pie(dataEvasao);
- 
-  // Desenhar arcos
-  const paths = g.selectAll("path")
-      .data(arcs)
-    .join("path")
-      .attr("fill", d => color(d.data.tipo))
-      .attr("d", arc)
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 2)
-      .style("opacity", 0.8)
-      .style("cursor", "pointer")
-      .each(function(d) { this._current = d; })
-      .on("click", function(event, selected) {
-      // Clicando na fatia: Destacar a fatia clicada e deixar as outras cinzas
-      svg.selectAll("path")
-        .transition().duration(200)
-        .attr("fill", d => d.data.tipo === selected.data.tipo ? color(d.data.tipo) : "#D3D3D3"); // "#D3D3D3" é o cinza
-
-      // Se a fatia já estiver selecionada, desmarque
-      const isSelected = d3.select(this).classed("selected");
-      if (isSelected) {
-        d3.select(this).classed("selected", false);
-        svg.selectAll("path")
-          .transition().duration(200)
-          .attr("fill", d => color(d.data.tipo));  // Voltar às cores originais
-      } else {
-        d3.select(this).classed("selected", true)
-          .transition().duration(200)
-          .attr("fill", color(selected.data.tipo));  // Destacar a fatia selecionada
-      }
-    });
-    
-  // Legenda
-  const legend = svg.append("g")
-      .attr("transform", `translate(${radius * 2 + 100}, 1)`);
-
-  const legendItems = legend.selectAll(".legend-item")
-      .data(dataEvasao)
-    .join("g")
-      .attr("class", "legend-item")
-      .attr("transform", (d, i) => `translate(0, ${i * 25})`)
-      .style("cursor", "pointer")
-      .on("click", function(event, d) {
-        const isActive = d3.select(this).classed("active");
-        d3.select(this).classed("active", !isActive);
-        
-        const targetOpacity = isActive ? 0.8 : 0.2;
-        paths.filter(path => path.data.tipo === d.tipo)
-            .transition().duration(300)
-            .style("opacity", targetOpacity);
-      });
-
-  legendItems.append("rect")
-      .attr("width", 20)
-      .attr("height", 20)
-      .attr("fill", d => color(d.tipo))
-      .attr("rx", 3);
-
-  legendItems.append("text")
-      .attr("x", 25)
-      .attr("y", 9)
-      .attr("dy", "0.35em")
-      .style("font-size", "12px")
-      .text(d => `${d.tipo} (${d.total})`);
-
-
-  // Tooltip
-  const tooltip = d3.select("body").append("div")
-      .style("position", "absolute")
-      .style("background", "rgba(0,0,0,0.8)")
-      .style("color", "white")
-      .style("padding", "8px")
-      .style("border-radius", "4px")
-      .style("font-size", "12px")
-      .style("pointer-events", "none")
-      .style("opacity", 0);
-
-  paths.on("mouseover", function(event, d) {
-        const percentage = ((d.data.total / d3.sum(dataEvasao, x => x.total)) * 100).toFixed(1);
-        tooltip.style("opacity", 1)
-            .html(`<strong>${d.data.tipo}</strong><br>${d.data.total} alunos (${percentage}%)`);
-        
-        d3.select(this).transition().duration(200)
-            .style("opacity", 1)
-            .attr("stroke-width", 3);
-      })
-      .on("mousemove", function(event) {
-        tooltip.style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px");
-      })
-      .on("mouseout", function(event, d) {
-        tooltip.style("opacity", 0);
-        d3.select(this).transition().duration(200)
-            .style("opacity", 0.8)
-            .attr("stroke-width", 2);
-      });
-
-  function updateChart(newData) {
-    const newPieData = pie(newData);
-    
-    paths.data(newPieData)
-        .transition().duration(750)
-        .attrTween("d", function(d) {
-          const i = d3.interpolate(this._current, d);
-          this._current = i(0);
-          return t => arc(i(t));
-        });
-  }
-
-  return Object.assign(svg.node(), { updateChart });
+  const div = DOM.element('plot-container');
+  Plotly.newPlot(div, evasaoAno, layout, config);
+  return div;
 }
-
-html`
-<div class="plot-container">
-${chart}
-</div>
-`
 ```
 </div>
 </div>
@@ -533,5 +477,5 @@ ${chart}
 <!------------------------------SCRIPTS-------------------------------------->
 <script src="./js/filter.js"></script>
 <script src="./js/index.js"></script>
-</body>
+  </body>
 </html>
