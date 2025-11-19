@@ -572,7 +572,7 @@ main .plot .tsplot {
   }
   
   main .header .filters-dropdown {
-    display: inline-block;    
+    display: inline-block;
     position: absolute;
     right: 1rem;
   }

@@ -420,7 +420,7 @@ Plotly = require("https://cdn.plot.ly/plotly-latest.min.js")
     direction: 'clockwise',
     hole: .6,
     marker: {
-      colors: d3.schemeTableau10,
+      colors: d3.quantize(t => d3.interpolateGreys(t * 0.8 + 0.1), dataEvasao.length).reverse(),
       line: {
 	color: 'white',
 	width: 2,
