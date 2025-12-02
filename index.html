@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto Evasão</title>
+  <link rel="icon" type="image/x-icon" href="./images/logo2.png">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Ícones Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+  <!-- D3 e Plotly -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <aside>
+    <div class="top">
+      <div class="logo">
+        <img src="./images/logo.png" />
+        <h2>PROJ. <span class="warning">EVASAO</span></h2>
+      </div>
+      <div class="close" id="close-btn">
+        <span class="material-symbols-outlined">close</span>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <a href="index.html" class="active">
+        <span class="material-symbols-outlined">grid_view</span>
+        <h3>Dashboard</h3>
+      </a>
+      <a href="#">
+        <span class="material-symbols-outlined">analytics</span>
+        <h3>Análises</h3>
+      </a>
+      <a href="tabela.html">
+        <span class="material-symbols-outlined">table</span>
+        <h3>Tabela</h3>
+      </a>
+      <a href="sobre.html">
+        <span class="material-symbols-outlined">info</span>
+        <h3>Sobre</h3>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="header">
+      <h2>Dashboard</h2>
+
+	    <div id="cursoRadio" class="radio-group"></div>
+      <!-- BOTÃO DROPDOWN -->
+      <div class="filters-dropdown">
+        <button class="dropdown-btn">
+          <span class="material-symbols-outlined">filter_list</span>
+          <h3>Filtros</h3>
+          <span class="material-symbols-outlined">arrow_drop_down</span>
+        </button>
+
+        <div class="dropdown-content" id="filtersBox">
+
+
+          <div class="filter-group">
+            <h4>Modalidade</h4>
+            <select id="modalidadeSelect"></select>
+          </div>
+
+          <div class="filter-group">
+            <h4>Período</h4>
+            <div class="date-range">
+              <select id="anoInicialSelect"></select>
+              <select id="anoFinalSelect"></select>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4>Periodo</h4>
+            <div id="periodoBox" class="checkbox-group"></div>
+          </div>
+
+
+          <div class="filter-group">
+            <h4>Sexo</h4>
+            <div id="sexoBox" class="checkbox-group"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4>Cota</h4>
+            <div id="cotaBox" class="checkbox-group"></div>
+          </div>
+
+          <div class="filter-group">
+            <h4>Etnia</h4>
+            <div id="etniaBox" class="checkbox-group"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="insights">
+      <div class="card" id="cardEvadidos">
+        <h3>Total de Evadidos</h3>
+        <h1 id="totalEvadidos">0</h1>
+        <small class="text-muted" id="evadidosPeriodo"></small>
+      </div>
+
+      <div class="card" id="cardFormados">
+        <h3>Total de Formados</h3>
+        <h1 id="totalFormados">0</h1>
+        <small class="text-muted" id="formadosPeriodo"></small>
+      </div>
+
+      <div class="card">
+        <h3>Taxa de Evasão</h3>
+        <h1 id="taxaEvasao">0%</h1>
+        <small class="text-muted" id="taxaEvasaoObs"></small>
+      </div>
+
+      <div class="card">
+        <h3>Taxa de Conclusão</h3>
+        <h1 id="taxaFormacao">0%</h1>
+        <small class="text-muted" id="taxaFormacaoObs"></small>
+      </div>
+
+      <div class="card">
+        <h3>Relação Evadido/Formado</h3>
+        <h1 id="relacao"></h1>
+        <small class="text-muted" id="relacaoObs"></small>
+      </div>
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div class="plots">
+      <div class="plot">
+        <h2>Evasão por Ano</h2>
+        <div class="plot-container" id="graficoAnos"></div>
+      </div>
+
+      <div class="plot">
+        <h2>Distribuição por Tipo de Evasão</h2>
+        <div class="plot-container" id="graficoTipos"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="right">
+    <div class="top">
+      <button id="menu-btn">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script src="./js/comum.js"></script>
+<script src="./js/dash.js"></script>
+<script src="./js/index.js"></script>
+</body>
+</html>
