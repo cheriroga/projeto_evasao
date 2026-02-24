@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projeto Evasão</title>
+  <title>SIMEA CCE</title>
   <link rel="icon" type="image/x-icon" href="./images/logo2.png">
   <link rel="stylesheet" href="styles.css">
 
@@ -24,7 +24,7 @@
     <div class="top">
       <div class="logo">
         <img src="./images/logo.png" />
-        <h2>PROJ. <span class="warning">EVASAO</span></h2>
+        <h2>SIMEA <span class="warning">CCE</span></h2>
       </div>
       <div class="close" id="close-btn">
         <span class="material-symbols-outlined">close</span>
@@ -82,12 +82,6 @@
           </div>
 
           <div class="filter-group">
-            <h4>Periodo</h4>
-            <div id="periodoBox" class="checkbox-group"></div>
-          </div>
-
-
-          <div class="filter-group">
             <h4>Sexo</h4>
             <div id="sexoBox" class="checkbox-group"></div>
           </div>
@@ -142,14 +136,17 @@
     <!-- GRÁFICOS -->
     <div class="plots">
       <div class="plot">
-        <h2>Evasão por Ano</h2>
         <div class="plot-container" id="graficoAnos"></div>
       </div>
 
       <div class="plot">
-        <h2>Distribuição por Tipo de Evasão</h2>
         <div class="plot-container" id="graficoTipos"></div>
       </div>
+
+      <div class="plot">
+        <div class="plot-container" id="graficoSexo"></div>
+      </div>
+
     </div>
 
   </main>

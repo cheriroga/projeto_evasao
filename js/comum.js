@@ -3,15 +3,25 @@ let dados = [];
 let dadosFiltrados = [];
 
 function carregarDados() {
-	return d3.csv("data/evasao.csv").then(df => {
-		df.forEach(d => {
-			d.ANO_EVASAO = +d.ANO_EVASAO;
-			d.QTDE = +d.QTDE;
-			d.QTDE_FORMADO = +d.QTDE_FORMADO;
-		});
-		dados = df;
-		return dados;
-	});
+    // Mudamos para o novo nome de arquivo, se necessário
+    return d3.csv("data/dados.csv").then(df => {
+        df.forEach(d => {
+            // Conversões numéricas
+            d.ANO_EVASAO = +d.ANO_EVASAO;
+            d.ANO_INGRESSO = +d.ANO_INGRESSO;
+            d.CRA = +d.CRA;
+            d.CRN = +d.CRN;
+            d.RETENCAO_PERIODOS = +d.RETENCAO_PERIODOS;
+
+            // Padronização para manter compatibilidade com seus filtros antigos:
+            d.SEXO = d.SEXO === "F" ? "Feminino" : "Masculino";
+            d.COTISTA = d.COTISTA === "S" ? "Cotista" : "Não Cotista";
+            
+            // Note que não temos mais d.QTDE, pois cada linha agora é 1 pessoa
+        });
+        dados = df;
+        return dados;
+    });
 }
 
 function preencherRadio(id, values, selectedValue = "Todos") {
@@ -49,19 +59,21 @@ function preencherCheckboxes(id, values) {
 }
 
 function inicializarFiltros() {
-	preencherRadio("cursoRadio", ["Todos", ...new Set(dados.map(d => d.CURSO))], "Todos");
-	// preencherSelect("cursoSelect", ["Todos", ...new Set(dados.map(d => d.CURSO))]);
-	preencherSelect("modalidadeSelect", ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]);
+    // Ajustado para os novos nomes de coluna: NOME_CURSO no lugar de CURSO
+    preencherRadio("cursoRadio", ["Todos", ...new Set(dados.map(d => d.NOMEE_CURSO))], "Todos");
+    
+    // Se você não tiver mais a coluna MODALIDADE no CSV novo, 
+    // precisará remover ou adaptar este filtro abaixo:
+    preencherSelect("modalidadeSelect", ["Todos", ...new Set(dados.map(d => d.MODALIDADE))]);
 
-	const anos = [...new Set(dados.map(d => d.ANO_EVASAO))].sort((a, b) => a - b);
+    const anos = [...new Set(dados.map(d => d.ANO_EVASAO))].sort((a, b) => a - b);
 
-	preencherSelect("anoInicialSelect", anos);
-	preencherSelect("anoFinalSelect", anos, anos.length - 1);
+    preencherSelect("anoInicialSelect", anos);
+    preencherSelect("anoFinalSelect", anos, anos.length - 1);
 
-	preencherCheckboxes("periodoBox", new Set(dados.map(d => d.PERIODO_EVASAO)));
-	preencherCheckboxes("sexoBox", new Set(dados.map(d => d.SEXO)));
-	preencherCheckboxes("cotaBox", new Set(dados.map(d => d.COTISTA)));
-	preencherCheckboxes("etniaBox", new Set(dados.map(d => d.ETNIA)));
+    preencherCheckboxes("sexoBox", new Set(dados.map(d => d.SEXO)));
+    preencherCheckboxes("cotaBox", new Set(dados.map(d => d.COTISTA)));
+    preencherCheckboxes("etniaBox", new Set(dados.map(d => d.ETNIA)));
 
 	document.querySelectorAll("select, input").forEach(el => {
 		el.addEventListener("change", aplicarFiltros);
@@ -82,27 +94,25 @@ function inicializarFiltros() {
 			dropdownContent.classList.remove("show");
 		}
 	});
-
 }
 
 function aplicarFiltrosComuns() {
-	const curso = document.querySelector('input[name="curso"]:checked').value;
-	const modalidade = document.getElementById("modalidadeSelect").value;
-	const anoIni = +document.getElementById("anoInicialSelect").value;
-	const anoFim = +document.getElementById("anoFinalSelect").value;
+    const curso = document.querySelector('input[name="curso"]:checked').value;
+    const modalidade = document.getElementById("modalidadeSelect").value;
+    const anoIni = +document.getElementById("anoInicialSelect").value;
+    const anoFim = +document.getElementById("anoFinalSelect").value;
 
-	const sexos = [...document.querySelectorAll("#sexoBox input:checked")].map(d => d.value);
-	const etnias = [...document.querySelectorAll("#etniaBox input:checked")].map(d => d.value);
-	const cotas = [...document.querySelectorAll("#cotaBox input:checked")].map(d => d.value);
-	const periodos = [...document.querySelectorAll("#periodoBox input:checked")].map(d => d.value);
-	dadosFiltrados = dados
-		.filter(d => curso === "Todos" || d.CURSO === curso)
-		.filter(d => modalidade === "Todos" || d.MODALIDADE === modalidade)
-		.filter(d => d.ANO_EVASAO >= anoIni && d.ANO_EVASAO <= anoFim)
-		.filter(d => sexos.length === 0 || sexos.includes(d.SEXO))
-		.filter(d => etnias.length === 0 || etnias.includes(d.ETNIA))
-		.filter(d => periodos.length === 0 || periodos.includes(d.PERIODO_EVASAO))
-		.filter(d => cotas.length === 0 || cotas.includes(d.COTISTA));
+    const sexos = [...document.querySelectorAll("#sexoBox input:checked")].map(d => d.value);
+    const etnias = [...document.querySelectorAll("#etniaBox input:checked")].map(d => d.value);
+    const cotas = [...document.querySelectorAll("#cotaBox input:checked")].map(d => d.value);
 
-	return dadosFiltrados;
+    dadosFiltrados = dados
+        .filter(d => curso === "Todos" || d.NOMEE_CURSO === curso)
+        .filter(d => modalidade === "Todos" || d.MODALIDADE === modalidade) 
+        .filter(d => d.ANO_EVASAO >= anoIni && d.ANO_EVASAO <= anoFim)
+        .filter(d => sexos.length === 0 || sexos.includes(d.SEXO))
+        .filter(d => etnias.length === 0 || etnias.includes(d.ETNIA))
+        .filter(d => cotas.length === 0 || cotas.includes(d.COTISTA));
+
+    return dadosFiltrados;
 }
